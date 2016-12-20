@@ -35,4 +35,14 @@ rings_method2.py : Complete
 	Plots two rings in xy-plane by checking if points in the plane are
 	members of the rings, then saving them to a file for sim use.
 
+sz_plotter.py : Complete (additional functions may be added)
+	
+	Plots the value of sz for EACH dot in simulation with respect to timesteps.
+
+bloch_data_grabber.py : Complete (additional functions may be added)
+
+	Grabs the pseudospin data from all dots at any timestep.  this is useful in
+	checking if the simulation is running as expected at different times.
+
+
 np and plt are python modules.
