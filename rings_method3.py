@@ -1,5 +1,5 @@
 """ Plots rings by checking if points on a plane are within the desired ring,
-then plots those points. """
+then plots those points. Also appends them to a file"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -62,7 +62,7 @@ def write_file(dot_x,dot_y,dot_z,tf,dc1,dc2,ds,dx,dy,dz):
 
 def plot_rings(x,y):
     """
-    Plots rings
+    Plots rings as a scatter plot
     """
     fig = plt.figure()
     axes = fig.add_subplot(111)
@@ -85,7 +85,7 @@ def main():
     
     MAX_RAD = 0.7
     MIN_RAD = 0.6
-    DOT_DIST = 0.05
+    DOT_DIST = 0.05 #distance in x and y ddirections between dots
     DOT_Z = 0
     
     plane_x, plane_y = create_plane(MAX_RAD, DOT_DIST)
@@ -93,7 +93,7 @@ def main():
     
     dot_x, dot_y, dot_count = \
     check_membership(plane_x, plane_y, MAX_RAD, MIN_RAD)
-    print(dot_count)
+    print("Dot count: "+str(dot_count))
     
     plot_rings(dot_x,dot_y)
     
