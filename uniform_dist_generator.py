@@ -38,6 +38,40 @@ def generate_dots(size, count):
     """
     return np.random.uniform(-size/2, size/2, (count, 3)) 
     
+def calculate_timestep(dipole_mag, distance):
+    """
+    Calculates the timestep for simulation using rabi frequency
+    dipole_mag is the magnitude of the dipole
+    distance is seperation between two dots
+    returns timestep
+    """
+    hbar = 0.658211928
+    mu0 = 2.013354451e-4
+    
+    rabi = dipole_mag**2/(hbar * distance**3) * mu0/(4 * np.pi)
+    
+    return 1/(20 * rabi)
+
+def calculate_min_distance(dot_array):
+    """
+    Calculates the minimum distance between two dots in the distribution
+    dot_array n x 3 array of dot positions
+    returns minimum distance
+    """
+    min_distance = 10000000 # Needs to be a value greater than the likely min distance
+    
+    for dot in dot_array:
+        x_dot,y_dot,z_dot = dot[0],dot[1],dot[2]
+        for dot in dot_array:
+            x_dist = x_dot - dot[0]
+            y_dist = y_dot - dot[1]
+            z_dist = z_dot - dot[2]
+            distance = np.sqrt(x_dist**2+y_dist**2+z_dist**2)
+            if (distance != 0) and distance < min_distance:
+                min_distance = distance
+                
+    return min_distance
+            
     
 def build_uniform_file(size, count):
     """
@@ -56,26 +90,15 @@ def build_uniform_file(size, count):
     DIPOLE_Z = 0
 
     dot_array = generate_dots(size, count)
+
     x_list = [row[0] for row in dot_array]
     y_list = [row[1] for row in dot_array]
     z_list = [row[2] for row in dot_array]
 
+    min_distance = calculate_min_distance(dot_array)
+    timestep = calculate_timestep(DIPOLE_STR, min_distance)
+    
+    print("Max Timestep: "+str(timestep))
     write_file(x_list,y_list,z_list,TRANS_FREQ,DECAY1,DECAY2,\
     DIPOLE_STR,DIPOLE_X,DIPOLE_Y,DIPOLE_Z)
-    
-    return dot_array
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
