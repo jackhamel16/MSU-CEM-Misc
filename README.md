@@ -33,7 +33,13 @@ rings.py : Complete
 rings_method2.py : Complete
 
 	Plots two rings in xy-plane by checking if points in the plane are
-	members of the rings, then saving them to a file for sim use.
+	members of the rings, then writing them to a file for sim use.
+	
+rings_method3.py : Complete
+
+	Plots one ring in xy-plane at any z value by checking if points in the same plane are
+	members of the rings, then appending them to a file for sim use.  Infinite rings can be
+	put in one file with this script.
 
 sz_plotter.py : Complete (additional functions may be added)
 	
@@ -44,5 +50,7 @@ bloch_data_grabber.py : Complete (additional functions may be added)
 	Grabs the pseudospin data from all dots at any timestep.  this is useful in
 	checking if the simulation is running as expected at different times.
 
+uniform_dist_generator.py : Complete
 
-np and plt are python modules.
+	Generates dots in a specified cube using uniform random distribution algorithm in numpy.
+	Writes to a file for use in sim.
