@@ -54,3 +54,10 @@ uniform_dist_generator.py : Complete
 
 	Generates dots in a specified cube using uniform random distribution algorithm in numpy.
 	Writes to a file for use in sim.
+
+dot_finder.py : WIP
+
+	Finds the two lowest sz values at a specific timestep.  Then finds the corresponding
+	dots and their positions.  Needs to be generalized still and better organized/commented.
+
+
