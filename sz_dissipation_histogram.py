@@ -4,6 +4,8 @@ direction over time.
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d
 
 def create_data_structure(dots_file, bloch_file):
     """
@@ -15,32 +17,35 @@ def create_data_structure(dots_file, bloch_file):
     returns the data formatted like above.
     """
     master_list = []
-    dots_data_raw = [line for line in dots_file]
-
-    for dot_line in dots_data_raw:
-        dot = dot_line.split()
+    dots_data_raw = [line.split() for line in dots_file]
+    bloch_data_raw = [line.split() for line in bloch_file]
+    dot_count = 0
+    
+    for dot in dots_data_raw:
+    
         x_pos,y_pos,z_pos = float(dot[0]),float(dot[1]),float(dot[2])
         dist = np.sqrt(x_pos**2+y_pos**2+z_pos**2)
-        # need to know length of bloch file to create zeroes array 
-        # length should be (dot_count*3)+1
-        dot_count = 0
-        bloch_data_raw = [line for line in bloch_file]
-        s_array = np.zeros((len(bloch_data_raw),3))
-#        for time in bloch_data_raw:
-#            split_line = time.split()
-#            
-#            sx = split_line[1+dot_count]
-#            sy = split_line[2+dot_count]
-#            sz = split_line[3+dot_count]
-#
-#            s_array[dot_count][0] = sx
-#            s_array[dot_count][1] = sy
-#            s_array[dot_count][2] = sz
-#
-#            dot_count += 1
-
-        dot_list = [x_pos,y_pos,z_pos,dist]
+    
+        time_count = 0 #counts timesteps in bloch data
+    
+        s_array = np.zeros((len(bloch_data_raw),3)) # stores s data from bloch file
+        
+        for time in bloch_data_raw:
+            
+            sx = time[1+dot_count*3]
+            sy = time[2+dot_count*3]
+            sz = time[3+dot_count*3]
+            
+            s_array[time_count][0] = float(sx)
+            s_array[time_count][1] = float(sy)
+            s_array[time_count][2] = float(sz)
+    
+            time_count += 1
+    
+        dot_list = [x_pos,y_pos,z_pos,dist,s_array] #formatted like in doc string
         master_list.append(dot_list)
+    
+        dot_count += 1 # counts the amount of dots completed
         
     return master_list
     
@@ -51,34 +56,22 @@ def create_data_structure(dots_file, bloch_file):
     
 dots_file = open("hist_test_data.dat")
 bloch_file = open("../sim_results/run1/bloch.dat")
-    
-master_list = []
-dots_data_raw = [line.split() for line in dots_file]
-bloch_data_raw = [line.split() for line in bloch_file]
-dot_count = 0
+master_list = create_data_structure(dots_file,bloch_file) 
 
-for dot in dots_data_raw:
+"""
+Algorithm idea
+    define shells
+        find max distance from origin
+        create shells from origin with specified width until farthest dist encompassed
+    group dots into new lists according to shell theyre within
+    create 2d array with each col a time and each row an ave sz of a shell
+    create plot with x as shell y as time, and z as ave sz
 
-    x_pos,y_pos,z_pos = float(dot[0]),float(dot[1]),float(dot[2])
-    dist = np.sqrt(x_pos**2+y_pos**2+z_pos**2)
 
-    time_count = 0
 
-    s_array = np.zeros((len(bloch_data_raw),3)
-    
-    for time in bloch_data_raw:
-        
-        sx = time[1+dot_count*3]
-        sy = time[2+dot_count*3]
-        sz = time[3+dot_count*3]
-        
-        s_array[time_count][0] = float(sx)
-        s_array[time_count][1] = float(sy)
-        s_array[time_count][2] = float(sz)
+# below is code for plotting a histogram
 
-        time_count += 1
+axes = fig.add_subplot(111,projection='3d')
 
-    dot_list = [x_pos,y_pos,z_pos,dist,s_array]
-    master_list.append(dot_list)
 
-    dot_count += 1
+
