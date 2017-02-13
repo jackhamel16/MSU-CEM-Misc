@@ -14,13 +14,13 @@ def create_data_structure(dots_file, bloch_file):
     DATA FORMAT:
     [x_pos,y_pos,z_pos,dist_from_origin,[pseudospin_array]]
     parameters are the open, readable files for dots and bloch files.
-    returns the data formatted like above.
+    returns the data formatted like above and an array of times.
     """
     master_list = []
     dots_data_raw = [line.split() for line in dots_file]
     bloch_data_raw = [line.split() for line in bloch_file]
     dot_count = 0
-    
+    time_array = np.array([line[0] for line in bloch_data_raw])
     for dot in dots_data_raw:
     
         x_pos,y_pos,z_pos = float(dot[0]),float(dot[1]),float(dot[2])
@@ -47,16 +47,16 @@ def create_data_structure(dots_file, bloch_file):
     
         dot_count += 1 # counts the amount of dots completed
         
-    return master_list
+    return master_list, time_array
     
-####### TEST AREA #######
-# notes: pulling dots data is working 
-# pulling bloch data for dot 1 works but the rest produces an empty array 
+
+####### TEST AREA ####### 
     
     
-dots_file = open("hist_test_data.dat")
-bloch_file = open("../sim_results/run1/bloch.dat")
-master_list = create_data_structure(dots_file,bloch_file) 
+dots_file = open("../sim_results/run14/dots.dat")
+bloch_file = open("../sim_results/run14/bloch.dat")
+master_list,time_array = create_data_structure(dots_file,bloch_file) 
+
 
 """
 Algorithm idea
@@ -66,12 +66,93 @@ Algorithm idea
     group dots into new lists according to shell theyre within
     create 2d array with each col a time and each row an ave sz of a shell
     create plot with x as shell y as time, and z as ave sz
+"""
+
+# Below is code for defining shells
+
+number_of_shells = 30
+shell_array = np.arange(1,number_of_shells+1)
+
+dist_sorted_list = sorted(master_list, key=lambda l: l[3])
+max_dist = dist_sorted_list[-1][3]
+shell_width = max_dist/number_of_shells
+#create data structure to hold dots based on shell they are within
+# shell_data = [[shell1],[shell2],...,[shelln]] shell1 is innermost 
+shell_data = []
+shell_min = 0
+shell_max = shell_width
+shell_count = 0
+while shell_count < number_of_shells:
+    for dot in dist_sorted_list:
+        current_shell_list = []
+        if shell_min < dot[3] <= shell_max:
+            #only need to take the sz value
+            current_shell_list.append(dot[4][2])
+    shell_data.append(current_shell_list)
+    shell_count += 1
+    shell_min += shell_width
+    shell_max += shell_width
+#########################################
+"""
+Groups sz data from each dot into their respective shells
+"""
+shell_min = 0
+shell_max = shell_width
+shell_data = [] #becomes a list of current_shells
+for i in range(number_of_shells):
+    current_shell = [] #list of sz data from each dot in that shell
+    for dot in dist_sorted_list:
+        if shell_min < dot[3] <= shell_max:
+            current_shell.append(dot[4][:,2])
+    shell_data.append(current_shell)
+    shell_min += shell_width
+    shell_max += shell_width
+#########################################
+"""
+forms the average sz array needed for plotting
+"""
+ave_sz_array = np.zeros((number_of_shells,len(time_array)))
+current_shell = 0 # 0 refers to innermost shell
+for shell in shell_data:
+    if len(shell) == 0:
+        current_shell += 1
+        continue
+    current_shell_ave_sz = np.zeros(len(time_array))
+    for timestep in range(len(time_array)):
+        ave_sz = sum([sz_data[timestep] for sz_data in shell])/len(shell)
+        current_shell_ave_sz[timestep] = ave_sz
+    ave_sz_array[current_shell,:] = current_shell_ave_sz
+    current_shell += 1
+    
+##########################################
+"""
+Plots wireframe plot
+"""
+fig = plt.figure()
+axes = fig.add_subplot(111,projection="3d")
+
+shell_grid = np.zeros((number_of_shells,len(time_array)))
+time_grid = np.zeros((number_of_shells,len(time_array)))
+
+for count in range(len(shell_grid)):
+    shell_grid[count][:] = count+1
+
+for count in range(len(time_grid)):
+    time_grid[count][:] = time_array
+
+axes.plot_wireframe(shell_grid,time_grid,ave_sz_array,rstride=1,cstride=10)
+plt.show()
 
 
 
-# below is code for plotting a histogram
 
-axes = fig.add_subplot(111,projection='3d')
+
+
+
+
+
+
+
 
 
 
